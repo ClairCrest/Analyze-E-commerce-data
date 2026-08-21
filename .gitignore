@@ -34,7 +34,10 @@ Thumbs.db
 .pytest_cache/
 .ruff_cache/
 
-# Secrets — never commit tokens
+# Secrets — never commit tokens / credentials
 github_token
+kaggle_token
+kaggle.json
 *.token
+*_token
 

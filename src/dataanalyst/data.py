@@ -6,11 +6,39 @@ how data is read/written (encoding, dtypes, path conventions, etc.).
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import pandas as pd
 
 from .paths import PROCESSED_DIR, RAW_DIR
+
+# Kaggle dataset backing this project.
+KAGGLE_DATASET = "srisyra02/e-commerce-sales-performance-analysis"
+
+
+def fetch_dataset(dataset: str = KAGGLE_DATASET, dest: Path = RAW_DIR) -> list[Path]:
+    """Download a Kaggle dataset and copy its files into ``data/raw/``.
+
+    Uses ``kagglehub`` (which reads credentials from ``~/.kaggle/kaggle.json`` or
+    the ``KAGGLE_USERNAME`` / ``KAGGLE_KEY`` environment variables). Files already
+    present in ``dest`` are left untouched, so it's safe to call repeatedly.
+
+    Returns the list of file paths now available in ``dest``.
+    """
+    import kagglehub  # imported lazily so the rest of the package has no hard dep
+
+    cache_dir = Path(kagglehub.dataset_download(dataset))
+    dest.mkdir(parents=True, exist_ok=True)
+
+    files: list[Path] = []
+    for src in sorted(cache_dir.rglob("*")):
+        if src.is_file():
+            target = dest / src.name
+            if not target.exists():
+                shutil.copy2(src, target)
+            files.append(target)
+    return files
 
 
 def load_raw(filename: str, **kwargs) -> pd.DataFrame:
