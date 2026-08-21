@@ -16,3 +16,6 @@ EXTERNAL_DIR = DATA_DIR / "external"
 
 REPORTS_DIR = PROJECT_ROOT / "reports"
 FIGURES_DIR = REPORTS_DIR / "figures"
+
+# Committed figures embedded in the README.
+ASSETS_DIR = PROJECT_ROOT / "assets"

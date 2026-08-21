@@ -2,7 +2,16 @@
 
 import pandas as pd
 
-from dataanalyst.analysis import kpis, monthly_revenue, revenue_by
+from dataanalyst.analysis import (
+    avg_revenue_by_discount,
+    delivery_band,
+    discount_band,
+    kpis,
+    monthly_revenue,
+    revenue_by,
+    revenue_pivot,
+    top_customers,
+)
 
 
 def _sample() -> pd.DataFrame:
@@ -11,6 +20,19 @@ def _sample() -> pd.DataFrame:
             "order_date": ["1/1/2022", "1/15/2022", "2/3/2022"],
             "region": ["West", "West", "East"],
             "revenue": [100.0, 300.0, 200.0],
+        }
+    )
+
+
+def _orders() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "product_category": ["A", "A", "B", "B"],
+            "region": ["West", "East", "West", "East"],
+            "customer_id": [1, 1, 2, 3],
+            "discount": [0.05, 0.15, 0.25, 0.40],
+            "delivery_days": [2, 5, 8, 12],
+            "revenue": [100.0, 200.0, 300.0, 400.0],
         }
     )
 
@@ -33,3 +55,34 @@ def test_monthly_revenue_groups_by_month():
     assert len(result) == 2  # January and February
     assert result.iloc[0] == 400.0  # two January orders
     assert result.iloc[1] == 200.0  # one February order
+
+
+def test_discount_band_labels():
+    bands = discount_band(_orders())
+    assert list(bands.astype(str)) == ["0-10%", "10-20%", "20-30%", "30%+"]
+
+
+def test_delivery_band_covers_max_value():
+    bands = delivery_band(_orders())
+    assert bands.notna().all()  # the 12-day order must fall inside the top band
+
+
+def test_avg_revenue_by_discount_orders_bands():
+    result = avg_revenue_by_discount(_orders())
+    assert list(result.index.astype(str)) == ["0-10%", "10-20%", "20-30%", "30%+"]
+    assert result.iloc[0] == 100.0
+
+
+def test_revenue_pivot_shape():
+    pivot = revenue_pivot(_orders())
+    assert set(pivot.index) == {"A", "B"}
+    assert set(pivot.columns) == {"West", "East"}
+    assert pivot.loc["A", "West"] == 100.0
+
+
+def test_top_customers_ranks_by_revenue():
+    # Totals: customer 1 -> 300, customer 2 -> 300, customer 3 -> 400.
+    result = top_customers(_orders(), n=2)
+    assert result.index[0] == 3  # highest revenue
+    assert result.iloc[0] == 400.0
+    assert len(result) == 2
