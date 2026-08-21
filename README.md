@@ -1,7 +1,23 @@
 # E-Commerce Sales Performance Analysis
 
-Analysis of e-commerce sales data using Python (pandas + Jupyter). Package and
-environment management is handled by [uv](https://docs.astral.sh/uv/).
+Analysis of an e-commerce sales dataset (5,000 orders) using Python (pandas +
+Jupyter), exploring what drives revenue, where it comes from, and who the best
+customers are. Environment and packages are managed with [uv](https://docs.astral.sh/uv/).
+
+## Highlights
+
+- **Revenue is price- and volume-led** — it equals `quantity × unit_price × (1 − discount)`
+  exactly, and correlates most with unit price (0.68) and quantity (0.62).
+- **Discounting erodes order value** — average revenue per order falls from ~1,160
+  at low discounts to ~840 above 30%.
+- **Electronics and Clothing dominate revenue**; revenue is evenly spread across regions.
+- **Delivery speed doesn't move customer ratings** (r ≈ −0.02).
+- **Data-quality catch** — order dates run to 2035 and need validation before any
+  time-series work.
+
+See the notebooks for the full analysis:
+- [`notebooks/01_exploratory_analysis.ipynb`](notebooks/01_exploratory_analysis.ipynb) — data quality + EDA
+- [`notebooks/02_sales_analysis.ipynb`](notebooks/02_sales_analysis.ipynb) — deeper analysis, conclusions & recommendations
 
 ## Setup
 
@@ -23,7 +39,7 @@ data/
   processed/   # cleaned / derived data (git-ignored)
   external/    # third-party source data (git-ignored)
 notebooks/     # Jupyter notebooks, numbered by stage (01_, 02_, ...)
-src/dataanalyst/  # reusable code (paths, loaders, transforms)
+src/dataanalyst/  # reusable code (paths, data IO, analysis helpers)
 reports/
   figures/     # exported charts (git-ignored)
 tests/         # pytest tests
