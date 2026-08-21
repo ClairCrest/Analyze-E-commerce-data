@@ -19,6 +19,59 @@ See the notebooks for the full analysis:
 - [`notebooks/01_exploratory_analysis.ipynb`](notebooks/01_exploratory_analysis.ipynb) — data quality + EDA
 - [`notebooks/02_sales_analysis.ipynb`](notebooks/02_sales_analysis.ipynb) — deeper analysis, conclusions & recommendations
 
+## Visual analysis
+
+All figures are generated reproducibly by [`scripts/generate_figures.py`](scripts/generate_figures.py)
+(`uv run python scripts/generate_figures.py`).
+
+### Revenue by product category
+
+![Revenue by product category](assets/revenue_by_category.png)
+
+**What it shows:** total revenue contributed by each product category.
+**Context:** Electronics (~1.83M) and Clothing (~1.53M) together generate roughly
+two-thirds of all revenue, while Home and Beauty trail. Category mix — not
+geography — is the main lever for growing top-line revenue.
+
+### Revenue by category and region
+
+![Revenue by category and region](assets/revenue_category_region.png)
+
+**What it shows:** a heatmap of revenue for every category × region combination.
+**Context:** the four regions are strikingly balanced (each ~1.24M–1.35M total), so
+no single region is under- or over-performing. The variation that matters lives in
+the categories (rows), reinforcing that product strategy beats regional strategy here.
+
+### Average order revenue by discount band
+
+![Average order revenue by discount band](assets/avg_revenue_by_discount.png)
+
+**What it shows:** the average revenue of an order within each discount band.
+**Context:** average order value falls monotonically from ~1,160 at ≤10% discount to
+~840 above 30%. Deeper discounts systematically shrink order value without a
+compensating volume boost — a strong argument for **capping discounts and testing
+targeted promotions** instead of blanket price cuts.
+
+### Correlation between numeric features
+
+![Correlation heatmap](assets/correlation_heatmap.png)
+
+**What it shows:** pairwise correlations among the numeric fields.
+**Context:** revenue is driven almost entirely by **unit price (0.68)** and
+**quantity (0.62)**, with discount pulling the other way (−0.14). Delivery days and
+customer rating are essentially uncorrelated with everything — including each other —
+which sets up the next chart.
+
+### Customer rating by delivery-time band
+
+![Customer rating by delivery band](assets/rating_by_delivery.png)
+
+**What it shows:** the distribution of customer ratings across delivery-time buckets.
+**Context:** ratings sit near 3.0 regardless of whether delivery took 1–3 days or 9+
+(correlation ≈ −0.02). **Faster delivery does not buy higher satisfaction** in this
+dataset, so satisfaction efforts should look elsewhere (product quality, expectation
+setting, support) rather than logistics speed.
+
 ## Setup
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
