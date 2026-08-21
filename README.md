@@ -72,6 +72,15 @@ which sets up the next chart.
 dataset, so satisfaction efforts should look elsewhere (product quality, expectation
 setting, support) rather than logistics speed.
 
+### Top 10 customers by revenue
+
+![Top 10 customers by revenue](assets/top_customers.png)
+
+**What it shows:** the ten customers contributing the most total revenue.
+**Context:** the top customers sit within a fairly narrow band, so revenue isn't
+dependent on a handful of whales — but this list is the natural starting point for
+retention, loyalty, and VIP-segmentation follow-ups.
+
 ## Setup
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
