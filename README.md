@@ -100,6 +100,18 @@ setting, support) rather than logistics speed.
 dependent on a handful of whales — but this list is the natural starting point for
 retention, loyalty, and VIP-segmentation follow-ups.
 
+### Revenue share by customer segment
+
+![Revenue share by customer segment](assets/revenue_by_segment.png)
+
+**What it shows:** each Frequency–Monetary segment's share of total revenue
+(see [`notebooks/03_customer_segmentation.ipynb`](notebooks/03_customer_segmentation.ipynb)).
+**Context:** **Champions** (≈40% of customers) generate **~61% of all revenue**, while
+the "Occasional" segment — a similar headcount — contributes under 20%. Revenue is
+highly concentrated in the best customers, so retention of Champions and upselling of
+Big spenders matter more than broad acquisition. This is the strongest lever in the
+whole analysis.
+
 ## Setup
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
