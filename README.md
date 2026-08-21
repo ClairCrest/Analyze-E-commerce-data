@@ -4,6 +4,24 @@ Analysis of an e-commerce sales dataset (5,000 orders) using Python (pandas +
 Jupyter), exploring what drives revenue, where it comes from, and who the best
 customers are. Environment and packages are managed with [uv](https://docs.astral.sh/uv/).
 
+## Executive summary
+
+Across 5,000 orders from 989 customers (~5.1M total revenue), revenue is driven by
+**price and volume, not discounting or geography**. A small core of high-value
+customers carries the business, and discounts actively shrink order value.
+
+**Top recommendations:**
+
+1. **Cap discounting.** Average order value falls from ~1,160 (≤10% off) to ~840
+   (30%+ off) with no volume payoff — replace blanket discounts with targeted offers.
+2. **Protect and grow the "Champions."** ~40% of customers generate **61% of revenue**;
+   invest in loyalty, early access, and referrals to retain them.
+3. **Lead with category mix, not regions.** Electronics + Clothing drive ~two-thirds of
+   revenue while the four regions are near-identical — prioritise product strategy.
+4. **Look past delivery speed for satisfaction.** Ratings are flat regardless of delivery
+   time (r ≈ −0.02); focus on product quality, expectations, and support instead.
+5. **Fix the order-date field** before any forecasting — dates currently run to 2035.
+
 ## Highlights
 
 - **Revenue is price- and volume-led** — it equals `quantity × unit_price × (1 − discount)`
@@ -18,6 +36,7 @@ customers are. Environment and packages are managed with [uv](https://docs.astra
 See the notebooks for the full analysis:
 - [`notebooks/01_exploratory_analysis.ipynb`](notebooks/01_exploratory_analysis.ipynb) — data quality + EDA
 - [`notebooks/02_sales_analysis.ipynb`](notebooks/02_sales_analysis.ipynb) — deeper analysis, conclusions & recommendations
+- [`notebooks/03_customer_segmentation.ipynb`](notebooks/03_customer_segmentation.ipynb) — FM scoring + K-Means customer segments
 
 ## Visual analysis
 
