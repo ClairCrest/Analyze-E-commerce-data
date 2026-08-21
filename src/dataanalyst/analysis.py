@@ -73,3 +73,25 @@ def top_customers(
 ) -> pd.Series:
     """Top ``n`` customers by total revenue, highest first."""
     return df.groupby(customer_col)[revenue_col].sum().nlargest(n)
+
+
+def customer_features(
+    df: pd.DataFrame,
+    customer_col: str = "customer_id",
+    revenue_col: str = "revenue",
+    rating_col: str = "customer_rating",
+) -> pd.DataFrame:
+    """Aggregate an order-level table to one row per customer.
+
+    Columns: ``n_orders`` (frequency), ``total_revenue`` (monetary),
+    ``avg_order_value``, and ``avg_rating``.
+    """
+    grouped = df.groupby(customer_col)
+    return pd.DataFrame(
+        {
+            "n_orders": grouped[revenue_col].size(),
+            "total_revenue": grouped[revenue_col].sum(),
+            "avg_order_value": grouped[revenue_col].mean(),
+            "avg_rating": grouped[rating_col].mean(),
+        }
+    )

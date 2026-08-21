@@ -2,6 +2,7 @@
 
 from .analysis import (
     avg_revenue_by_discount,
+    customer_features,
     delivery_band,
     discount_band,
     kpis,
@@ -28,6 +29,7 @@ __all__ = [
     "RAW_DIR",
     "REPORTS_DIR",
     "avg_revenue_by_discount",
+    "customer_features",
     "delivery_band",
     "discount_band",
     "fetch_dataset",

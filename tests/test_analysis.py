@@ -4,6 +4,7 @@ import pandas as pd
 
 from dataanalyst.analysis import (
     avg_revenue_by_discount,
+    customer_features,
     delivery_band,
     discount_band,
     kpis,
@@ -86,3 +87,14 @@ def test_top_customers_ranks_by_revenue():
     assert result.index[0] == 3  # highest revenue
     assert result.iloc[0] == 400.0
     assert len(result) == 2
+
+
+def test_customer_features_aggregates_per_customer():
+    orders = _orders().assign(customer_rating=[4.0, 2.0, 5.0, 3.0])
+    feats = customer_features(orders)
+    assert list(feats.columns) == ["n_orders", "total_revenue", "avg_order_value", "avg_rating"]
+    # Customer 1 placed two orders (100 + 200).
+    assert feats.loc[1, "n_orders"] == 2
+    assert feats.loc[1, "total_revenue"] == 300.0
+    assert feats.loc[1, "avg_order_value"] == 150.0
+    assert feats.loc[1, "avg_rating"] == 3.0
