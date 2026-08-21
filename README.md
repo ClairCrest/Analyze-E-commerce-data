@@ -112,6 +112,102 @@ highly concentrated in the best customers, so retention of Champions and upselli
 Big spenders matter more than broad acquisition. This is the strongest lever in the
 whole analysis.
 
+## Methodology — how each result is produced
+
+Every result above is reproducible. This section walks through the workflow step by
+step; the reusable logic lives in [`src/dataanalyst/`](src/dataanalyst) so notebooks,
+tests, and the figure script all share one implementation.
+
+### Step 1 — Acquire the data
+
+`fetch_dataset()` downloads the Kaggle dataset with `kagglehub` and copies the CSV
+into `data/raw/` (idempotent — existing files are skipped):
+
+```python
+from dataanalyst.data import fetch_dataset, load_raw
+fetch_dataset()                                   # -> data/raw/E-Commerce Sales Analytics.csv
+df = load_raw("E-Commerce Sales Analytics.csv")   # 5,000 rows x 12 columns
+```
+
+### Step 2 — Assess data quality *(notebook 01, §3–6)*
+
+Before analysing, check structure and integrity:
+
+```python
+df.shape                                   # (5000, 12)
+df.info()                                  # dtypes + non-null counts
+df.isna().mean().mul(100).round(2)         # % missing per column
+df.duplicated().sum()                      # exact duplicate rows
+```
+
+This is where the **order dates run to 2035** issue surfaced (`df["order_date"].max()`),
+which is why later time-based conclusions are flagged as caveats.
+
+### Step 3 — Clean and persist *(notebook 01, §7)*
+
+Work on a copy, parse the date, drop duplicates, then save a typed Parquet so every
+later notebook starts from the same trusted table:
+
+```python
+df_clean = df.drop_duplicates().copy()
+df_clean["order_date"] = pd.to_datetime(df_clean["order_date"], format="%m/%d/%Y")
+
+from dataanalyst.data import save_processed
+save_processed(df_clean, "ecommerce_clean.parquet")
+```
+
+### Step 4 — What drives revenue *(notebook 02, §4–5)*
+
+First confirm the accounting identity, so the analysis rests on solid ground:
+
+```python
+expected = df_clean["quantity"] * df_clean["unit_price"] * (1 - df_clean["discount"])
+(df_clean["revenue"] - expected).abs().max()      # ~0.005 (rounding) -> revenue is derived
+```
+
+Then quantify the drivers with a correlation matrix, and measure the discount effect
+by **banding** discounts into quartile-style buckets and averaging revenue per band:
+
+```python
+from dataanalyst.analysis import avg_revenue_by_discount
+df_clean[["quantity", "unit_price", "discount", "revenue"]].corr()   # price 0.68, qty 0.62
+avg_revenue_by_discount(df_clean)                # 0-10% ~1,160  ...  30%+ ~840
+```
+
+### Step 5 — Where revenue comes from *(notebook 02, §6–7)*
+
+Aggregate by dimension with the shared helpers:
+
+```python
+from dataanalyst.analysis import revenue_by, revenue_pivot
+revenue_by(df_clean, "product_category")         # Electronics & Clothing lead
+revenue_pivot(df_clean)                           # category x region pivot (heatmap)
+```
+
+### Step 6 — Segment the customers *(notebook 03)*
+
+Roll orders up to one row per customer, score them, and label segments:
+
+```python
+from dataanalyst.analysis import customer_features, assign_fm_segments
+
+customers = customer_features(df_clean)           # n_orders, total_revenue, AOV, avg_rating
+customers = assign_fm_segments(customers)         # F/M quartile scores -> segment label
+```
+
+`assign_fm_segments` scores each customer 1–4 on **F**requency and **M**onetary value
+via `pd.qcut`, then maps the high/low combination to Champions / Big spenders /
+Loyal (lower value) / Occasional. A **K-Means** pass (standardised features, k = 4)
+provides an independent, data-driven cross-check on the same frequency×monetary plane.
+
+### Step 7 — Regenerate the figures
+
+All README charts are produced from the cleaned data by one script:
+
+```powershell
+uv run python scripts/generate_figures.py         # writes PNGs to assets/
+```
+
 ## Setup
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
