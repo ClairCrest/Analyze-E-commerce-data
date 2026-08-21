@@ -18,9 +18,11 @@ import seaborn as sns
 
 from dataanalyst.analysis import (
     avg_revenue_by_discount,
+    customer_features,
     delivery_band,
     revenue_by,
     revenue_pivot,
+    segment_revenue_share,
     top_customers,
 )
 from dataanalyst.data import load_processed
@@ -96,6 +98,16 @@ def main() -> None:
         _barh(top, "Top 10 customers by total revenue", "Total revenue", "Greens_r"),
         "top_customers.png",
     )
+
+    # 7. Revenue share by customer segment (FM segmentation)
+    share = segment_revenue_share(customer_features(df))
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    labels = share.index.astype(str)
+    sns.barplot(x=labels, y=share.values, ax=ax, palette="viridis", hue=labels, legend=False)
+    ax.set_title("Share of total revenue by customer segment")
+    ax.set_xlabel("")
+    ax.set_ylabel("Revenue share (%)")
+    _save(fig, "revenue_by_segment.png")
 
 
 if __name__ == "__main__":
