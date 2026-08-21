@@ -3,6 +3,7 @@
 import pandas as pd
 
 from dataanalyst.analysis import (
+    assign_fm_segments,
     avg_revenue_by_discount,
     customer_features,
     delivery_band,
@@ -11,6 +12,7 @@ from dataanalyst.analysis import (
     monthly_revenue,
     revenue_by,
     revenue_pivot,
+    segment_revenue_share,
     top_customers,
 )
 
@@ -98,3 +100,30 @@ def test_customer_features_aggregates_per_customer():
     assert feats.loc[1, "total_revenue"] == 300.0
     assert feats.loc[1, "avg_order_value"] == 150.0
     assert feats.loc[1, "avg_rating"] == 3.0
+
+
+def _customers() -> pd.DataFrame:
+    # 8 customers with increasing frequency and monetary value.
+    return pd.DataFrame(
+        {
+            "n_orders": [1, 2, 3, 4, 5, 6, 7, 8],
+            "total_revenue": [100.0, 200, 300, 400, 500, 600, 700, 800],
+        },
+        index=range(1, 9),
+    )
+
+
+def test_assign_fm_segments_labels_top_customer_champion():
+    result = assign_fm_segments(_customers())
+    assert set(result["segment"]) <= {
+        "Champions", "Loyal (lower value)", "Big spenders", "Occasional",
+    }
+    # The highest frequency + monetary customer must be a Champion.
+    assert result.loc[8, "segment"] == "Champions"
+    # The lowest on both axes must be Occasional.
+    assert result.loc[1, "segment"] == "Occasional"
+
+
+def test_segment_revenue_share_sums_to_100():
+    share = segment_revenue_share(_customers())
+    assert round(share.sum(), 6) == 100.0

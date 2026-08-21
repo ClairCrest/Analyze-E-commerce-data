@@ -6,6 +6,7 @@ and reused across notebooks, scripts, and reports without copy-pasting logic.
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 # Shared bin definitions so notebooks and the figure script band data identically.
@@ -95,3 +96,34 @@ def customer_features(
             "avg_rating": grouped[rating_col].mean(),
         }
     )
+
+
+def assign_fm_segments(
+    customers: pd.DataFrame, freq_col: str = "n_orders", monetary_col: str = "total_revenue"
+) -> pd.DataFrame:
+    """Add Frequency/Monetary quartile scores and a business ``segment`` label.
+
+    Expects a per-customer table (e.g. from :func:`customer_features`). Scores each
+    customer 1-4 on frequency and monetary value, then maps the high/low combination
+    to Champions / Big spenders / Loyal (lower value) / Occasional.
+    """
+    out = customers.copy()
+    out["F_score"] = pd.qcut(out[freq_col].rank(method="first"), 4, labels=[1, 2, 3, 4]).astype(int)
+    out["M_score"] = pd.qcut(out[monetary_col], 4, labels=[1, 2, 3, 4]).astype(int)
+    high_f = out["F_score"] >= 3
+    high_m = out["M_score"] >= 3
+    out["segment"] = np.select(
+        [high_f & high_m, high_f & ~high_m, ~high_f & high_m],
+        ["Champions", "Loyal (lower value)", "Big spenders"],
+        default="Occasional",
+    )
+    return out
+
+
+def segment_revenue_share(
+    customers: pd.DataFrame, monetary_col: str = "total_revenue"
+) -> pd.Series:
+    """Percentage of total revenue contributed by each FM segment, high to low."""
+    segmented = assign_fm_segments(customers, monetary_col=monetary_col)
+    revenue = segmented.groupby("segment")[monetary_col].sum()
+    return (100 * revenue / revenue.sum()).sort_values(ascending=False)

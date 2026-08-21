@@ -1,6 +1,7 @@
 """dataAnalyst — reusable helpers for the e-commerce analysis project."""
 
 from .analysis import (
+    assign_fm_segments,
     avg_revenue_by_discount,
     customer_features,
     delivery_band,
@@ -9,6 +10,7 @@ from .analysis import (
     monthly_revenue,
     revenue_by,
     revenue_pivot,
+    segment_revenue_share,
     top_customers,
 )
 from .data import fetch_dataset, load_processed, load_raw, save_processed
@@ -28,6 +30,7 @@ __all__ = [
     "PROJECT_ROOT",
     "RAW_DIR",
     "REPORTS_DIR",
+    "assign_fm_segments",
     "avg_revenue_by_discount",
     "customer_features",
     "delivery_band",
@@ -40,5 +43,6 @@ __all__ = [
     "revenue_by",
     "revenue_pivot",
     "save_processed",
+    "segment_revenue_share",
     "top_customers",
 ]
